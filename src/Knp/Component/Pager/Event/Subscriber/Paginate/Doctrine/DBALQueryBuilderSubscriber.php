@@ -18,16 +18,19 @@ class DBALQueryBuilderSubscriber implements EventSubscriberInterface
         if ($event->target instanceof QueryBuilder) {
             /** @var $target QueryBuilder */
             $target = $event->target;
-        
-            // get the query
-            $sql = $target->getSQL();
 
             // count results
+            $countQb = clone $target;
+
+            // remove order by as this is not allowed in subqueries on some platforms
+            if ($countQb->getMaxResults() === null && $countQb->getFirstResult() == null) {
+                $countQb->resetQueryPart('orderBy');
+            }
             $qb = clone $target;
             $qb
                 ->resetQueryParts()
                 ->select('count(*) as cnt')
-                ->from('(' . $sql . ')', 'ololoshke_trololoshke')
+                ->from('(' . $countQb->getSQL() . ')', 'ololoshke_trololoshke')
             ;
 
             $event->count = $qb
