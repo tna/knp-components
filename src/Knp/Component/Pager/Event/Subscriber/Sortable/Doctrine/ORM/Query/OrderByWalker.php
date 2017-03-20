@@ -78,6 +78,13 @@ class OrderByWalker extends TreeWalkerAdapter
                         break;
                     }
                 }
+                if (true === is_string($item->expression)) {
+                    if ($item->expression == $orderByItem->expression) {
+                        $item->type = $direction;
+                        $set = true;
+                        break;
+                    }
+                }
             }
             if (!$set) {
                 array_unshift($AST->orderByClause->orderByItems, $orderByItem);
